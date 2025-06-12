@@ -10,11 +10,11 @@ public class Main extends JFrame {
     JTextArea outputArea;
     JComboBox<Location> fromCombo;
     JComboBox<Location> toCombo;
-    JTextField productName, productPrice, productQty, productCat;
+    JTextField productName, productPrice, productQty, productCat, productBarcode; // add productBarcode
 
     public Main() {
         setTitle("Warehouse Management");
-        setSize(500, 400);
+        setSize(500, 450); // a bit taller to fit barcode
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -22,11 +22,12 @@ public class Main extends JFrame {
         warehouse.addLocation(locB);
 
         // 🟦 Top: Add Product
-        JPanel topPanel = new JPanel(new GridLayout(5, 2));
+        JPanel topPanel = new JPanel(new GridLayout(6, 2)); // 6 rows now
         productName = new JTextField();
         productPrice = new JTextField();
         productQty = new JTextField();
         productCat = new JTextField();
+        productBarcode = new JTextField(); // add barcode input field
         JButton addBtn = new JButton("Add to A");
 
         topPanel.add(new JLabel("Name:"));
@@ -37,6 +38,8 @@ public class Main extends JFrame {
         topPanel.add(productQty);
         topPanel.add(new JLabel("Category:"));
         topPanel.add(productCat);
+        topPanel.add(new JLabel("Barcode:")); // new label
+        topPanel.add(productBarcode);         // new text field
         topPanel.add(addBtn);
 
         // 🟩 Center: Output
@@ -57,13 +60,29 @@ public class Main extends JFrame {
 
         // 🔷 Add listeners
         addBtn.addActionListener(e -> {
-            String name = productName.getText();
-            double price = Double.parseDouble(productPrice.getText());
-            int qty = Integer.parseInt(productQty.getText());
-            String cat = productCat.getText();
-            Product p = new Product(name, price, qty, cat);
-            locA.addProduct(p);
-            showAll();
+            try {
+                String name = productName.getText();
+                double price = Double.parseDouble(productPrice.getText());
+                int qty = Integer.parseInt(productQty.getText());
+                String cat = productCat.getText();
+                String barcode = productBarcode.getText();
+
+                // Create Product with barcode (make sure Product class has matching constructor)
+                Product p = new Product(name, price, qty, cat, barcode);
+                locA.addProduct(p);
+                showAll();
+
+                // Optionally clear input fields after adding
+                productName.setText("");
+                productPrice.setText("");
+                productQty.setText("");
+                productCat.setText("");
+                productBarcode.setText("");
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this, "Invalid price or quantity input.", "Input Error", JOptionPane.ERROR_MESSAGE);
+            } catch (IllegalArgumentException ex) {
+                JOptionPane.showMessageDialog(this, ex.getMessage(), "Input Error", JOptionPane.ERROR_MESSAGE);
+            }
         });
 
         moveBtn.addActionListener(e -> {
@@ -82,6 +101,7 @@ public class Main extends JFrame {
 
         showAll();
     }
+
 
     public void showAll() {
         outputArea.setText("");
